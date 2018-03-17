@@ -9,6 +9,12 @@ options = {
   dir: Dir.pwd,
   log_output: true
 }
-options[:ARGV] += ["--", "loop"] unless options[:ARGV].index("--")
 
-Daemons.run("simple_mailing_list", options)
+File.write("daemons_simple_mailing_list.rb", <<EOS
+Dir.chdir(File.dirname(File.expand_path(__FILE__)))
+SimpleMailingList::CLI.start(ARGV)
+EOS
+)
+
+ARGV.push( "--", "loop_main_jobs" ) unless ARGV.index("--")
+Daemons.run("daemons_simple_mailing_list.rb", options)
