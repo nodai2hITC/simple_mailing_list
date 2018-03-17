@@ -1,0 +1,127 @@
+log:
+  filename: "logs/%v.log" # ログファイル名。Time#strftime の書式を使用可。省略すると標準出力。
+  rotation: daily         # ログローテーション。Ruby の Logger を参照。
+  level:    debug         # 記録するログのレベル。Ruby の Logger を参照。
+
+lockfile: lock/lock.file  # ロック用のファイル名。省略するとロックを行わない。
+
+maillogs_dir:    maillogs # メールログを記録するフォルダ名。
+maillogs_period: -1       # メールログを記録する秒数。マイナスにすると永遠。
+
+validity_time:   86400    # 登録/削除確認メールの有効時間。（デフォルト：86400s==一日）
+max_check_times: 5        # 同じメールアドレスから登録/削除要求メールが何度も来た場合、
+                          # 有効時間内にはこの数以上の確認メールを送らない。
+
+sleep_time1:     0.1      # メールを送った後の待機時間。
+sleep_time2:     1.5      # 同じドメインに連続してメールを送る際の待機時間。
+
+# 許可された人だけがメール転送をできるようにする設定。
+# 指定されたメールアドレスからのメールか、
+# 件名に「チェックコード」を含むメール（あるいはその両方）のみ転送される。
+# 省略した場合、誰でもメール転送ができる。
+permitted_users:
+  - address: yamada@mail.example.com
+  - check_code: "forward!"
+# ↑例） yamada@mail.example.com からのメール、または
+#      件名に「forward!」を含むメールのみを転送。
+
+# メール配信に登録されている人だけがメール転送をできるようにする。
+registered_user_only:   false
+
+# 転送メールの差出人を、もとのメールの差出人にする。
+use_address_camouflage: false
+
+# HTMLメールを有効にする。
+enable_html_mail:       false
+
+# 使用するデータベースの設定。
+database:
+  adapter:  sqlite3
+  database: sml_test
+
+# メール受信の設定。
+# https://www.school.ctc-g.co.jp/columns/masuidrive/masuidrive07.html
+# https://github.com/mikel/mail 等を参照。
+receive_server:
+  protocol: pop3
+  options:
+    address:    mail.example.com
+    port:       110
+    user_name:  simpleml
+    password:   "simpleml_pass"
+    enable_ssl: false
+
+# メール送信の設定。同上
+deliver_server:
+  protocol: smtp
+  address:  '"シンプルメーリングリスト" <simpleml@mail.example.com>'
+  charset:  utf-8
+  options:
+    address:              mail.example.com
+    port:                 25
+    domain:               mail.example.com
+    authentication:       null
+    user_name:            null
+    password:             null
+    ssl:                  null
+    enable_starttls_auto: false
+    openssl_verify_mode:  null
+
+# 登録要求メールの設定。
+# 指定されたメールアドレスへのメールか、
+# 件名・本文に特定の「チェックコード」を含むメールを
+# 登録要求メールと判断する。
+register:
+  - address: register1@mail.example.com
+    options: { grade: 1 }
+  - address: register2@mail.example.com
+    options: { grade: 2 }
+  - address: register3@mail.example.com
+    options: { grade: 3 }
+  - address: register@mail.example.com
+    subject: !ruby/regexp /(1|１|一)年/
+    options: { grade: 1 }
+# ↑例）
+# 「register(数値)@mail.example.com」にメールを送ると、
+# その数値のgrade（学年）として登録される。
+# または、「register@mail.example.com」に、件名に「1年」等を
+# 含むメールを送ると、1年として登録される。
+
+# 登録確認メールの件名・本文
+register_confirm_subject: "登録確認メール：{{checkcode}}"
+register_confirm_body: |
+  登録ありがとうございます。
+  24時間以内に、このメールに返信するか、
+  以下の認証コードを本文中にコピーしたメールを送ってください。
+  認証コード：{{checkcode}}
+# 登録完了メールの件名・本文
+register_success_subject: "登録完了"
+register_success_body: |
+  登録が完了しました。
+  登録を解除するには、delete@mail.example.com にメールを送ってください。
+
+# 削除要求メールの設定。register 参照。
+delete:
+  - address: delete@mail.example.com
+delete_confirm_subject: "登録解除確認メール：{{checkcode}}"
+delete_confirm_body: |
+  登録を解除するには24時間以内に、このメールに返信するか、
+  以下の認証コードを本文中にコピーしたメールを送ってください。
+  認証コード：{{checkcode}}
+delete_success_subject: "登録解除完了"
+delete_success_body: |
+  登録を解除しました。
+
+# 転送メールの設定。
+forward:
+  - address: forward@mail.example.com
+  - address: forward1@mail.example.com
+    options: { grade: 1 }
+  - address: forward2@mail.example.com
+    options: { grade: 2 }
+  - address: forward3@mail.example.com
+    options: { grade: 3 }
+# ↑例）
+# forward@mail.example.com に送ると登録者全員に、
+# forward(数値)@mail.example.com に送ると
+# 該当学年の登録者のみにメールを転送する。

@@ -1,0 +1,89 @@
+log:
+  filename: "logs/%v.log"
+  rotation: daily
+  level:    debug
+
+lockfile: lock/lock.file
+
+maillogs_dir:    maillogs
+maillogs_period: -1
+
+validity_time:   86400
+max_check_times: 5
+
+sleep_time1:     0.1
+sleep_time2:     1.5
+
+permitted_users:
+  - address: yamada@mail.example.com
+  - check_code: "forward!"
+
+registered_user_only:   false
+
+use_address_camouflage: false
+
+enable_html_mail:       false
+
+database:
+  adapter:  sqlite3
+  database: sml_test
+
+receive_server:
+  protocol: pop3
+  options:
+    address:    mail.example.com
+    port:       110
+    user_name:  simpleml
+    password:   "simpleml_pass"
+    enable_ssl: false
+
+deliver_server:
+  protocol: smtp
+  address:  '"SimpleMailingList" <simpleml@mail.example.com>'
+  charset:  utf-8
+  options:
+    address:              mail.example.com
+    port:                 25
+    domain:               mail.example.com
+    authentication:       null
+    user_name:            null
+    password:             null
+    ssl:                  null
+    enable_starttls_auto: false
+    openssl_verify_mode:  null
+
+register:
+  - address: register1@mail.example.com
+    options: { grade: 1 }
+  - address: register2@mail.example.com
+    options: { grade: 2 }
+  - address: register3@mail.example.com
+    options: { grade: 3 }
+  - address: register@mail.example.com
+    subject: !ruby/regexp /1st|first/i
+    options: { grade: 1 }
+
+register_confirm_subject: "Registration Confirmation: {{checkcode}}"
+register_confirm_body: |
+  Authentication key ... {{checkcode}}
+register_success_subject: "Registration Complete !"
+register_success_body: |
+  Registration Complete !
+
+delete:
+  - address: delete@mail.example.com
+delete_confirm_subject: "Deletion Confirmation: {{checkcode}}"
+delete_confirm_body: |
+  Authentication key ... {{checkcode}}
+delete_success_subject: "Deletion Complete !"
+delete_success_body: |
+  Registration Complete !
+
+forward:
+  - address: forward@mail.example.com
+  - address: forward1@mail.example.com
+    options: { grade: 1 }
+  - address: forward2@mail.example.com
+    options: { grade: 2 }
+  - address: forward3@mail.example.com
+    options: { grade: 3 }

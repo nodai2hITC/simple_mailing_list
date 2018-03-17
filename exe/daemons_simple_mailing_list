@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+
+require "simple_mailing_list"
+require "daemons"
+
+options = {
+  ARGV: ARGV,
+  dir_mode: :normal,
+  dir: Dir.pwd,
+  log_output: true
+}
+options[:ARGV] += ["--", "loop"] unless options[:ARGV].index("--")
+
+Daemons.run("simple_mailing_list", options)
