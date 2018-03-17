@@ -108,13 +108,13 @@ module SimpleMailingList
       _delete_old_maillogs()
     end
 
-    desc "loop", "loop main_jobs."
+    desc "loop_main_jobs", "loop main_jobs."
     option :sleep_time,
       aliases: "-s",
       default: 10,
       type: :numeric,
       desc: "wait time on a loop."
-    def loop()
+    def loop_main_jobs()
       require "simple_mailing_list/main"
       require "simple_mailing_list/delete_old"
       load_configfile(options[:configfile])
