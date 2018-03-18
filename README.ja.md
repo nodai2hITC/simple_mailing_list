@@ -57,7 +57,7 @@ YAML 形式のコンフィグファイルを用意し、
 
 で実行。
 
-```<mode>``` を省略すると、「メールの受信・処理」「古いデータの削除」といった一連の処理を行います。
+```<mode>``` を省略すると、「メールの受信・処理」「古いデータの削除」といった一連の処理を行います。cron 等で定期実行させれば、メーリングリストのできあがり。
 
 ```-c``` を省略すると、「 config.yaml 」が使用されます。
 
@@ -65,7 +65,7 @@ YAML 形式のコンフィグファイルを用意し、
 
 ### Daemon 化
 
-    $ daemons_simple_mailing_list start -- loop -c <config.yaml>
+    $ daemons_simple_mailing_list start -- loop_main_jobs -c <config.yaml>
 
 で、「メールの受信・処理」「古いデータの削除」といった一連の処理をずっと繰り返します。
 

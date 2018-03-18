@@ -8,6 +8,9 @@ Add this line to your application's Gemfile:
 
 ```ruby
 gem 'simple_mailing_list'
+gem 'sqlite3'
+# gem 'mysql2'
+# gem 'pg'
 ```
 
 And then execute:

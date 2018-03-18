@@ -4,17 +4,16 @@ require "simple_mailing_list"
 require "daemons"
 
 options = {
-  ARGV: ARGV,
   dir_mode: :normal,
   dir: Dir.pwd,
   log_output: true
 }
 
-File.write("daemons_simple_mailing_list.rb", <<EOS
-Dir.chdir(File.dirname(File.expand_path(__FILE__)))
-SimpleMailingList::CLI.start(ARGV)
-EOS
-)
-
-ARGV.push( "--", "loop_main_jobs" ) unless ARGV.index("--")
-Daemons.run("daemons_simple_mailing_list.rb", options)
+Daemons.run_proc("daemons_simple_mailinglist", options) do
+  Dir.chdir(options[:dir])
+  ARGV.push( "--", "loop_main_jobs" ) unless ARGV.index("--")
+  until ARGV.shift == "--"
+    break if ARGV.empty?
+  end
+  SimpleMailingList::CLI.start(ARGV)
+end
