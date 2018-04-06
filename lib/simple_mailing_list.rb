@@ -55,7 +55,7 @@ module SimpleMailingList
       _delete_user(address)
     end
 
-    desc "delete_failed_users", "delete users who do not receive mails."
+    desc "disable_failed_users", "disable users who do not receive mails."
     option :failed_count,
       aliases: "-f",
       default: 10,
@@ -64,10 +64,13 @@ module SimpleMailingList
       aliases: "-t",
       default: 5 * 24 * 60 * 60,
       type: :numeric
-    def delete_failed_users()
+    option :reset,
+      default: false,
+      type: :boolean
+    def disable_failed_users()
       require "simple_mailing_list/delete_old"
       load_configfile(options[:configfile])
-      _delete_failed_users(options[:failed_count], options[:failed_time])
+      _disable_failed_users(options[:failed_count], options[:failed_time], options[:reset])
     end
 
     desc "delete_old_confirmations", "delete old confirmations."

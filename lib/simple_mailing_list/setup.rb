@@ -10,6 +10,7 @@ module SimpleMailingList
       ActiveRecord::Base.transaction do |a|
         ActiveRecord::Migration.create_table :users do |t|
           t.text      :mail_address   , null: false
+          t.integer   :enabled        , null: false, default: 1
           t.integer   :failed_count   , null: false, default: 0
           t.timestamp :last_failed_at , null: false, default: Time.at(0)
           t.text      :options        , null: false, default: "{}"

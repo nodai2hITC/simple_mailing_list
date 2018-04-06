@@ -28,17 +28,18 @@
 
 - 送信可能なメールアドレス１つ
 - 受信可能なメールアドレス３つ以上
-- Linux など、プロセスを Daemon 化可能な環境のコンピュータ１台
+- Linux など、プロセスを Daemon 化可能な Ruby 環境のコンピュータ１台
 
 ## インストール
 
-Gemfile に以下を追加し、```$ bundle```
+以下のような Gemfile を作成し、```$ bundle install```
 
 ```ruby
 gem 'simple_mailing_list'
 gem 'sqlite3'
 # gem 'mysql2'
 # gem 'pg'
+# ↑ 使用したい DB に応じて変更。
 ```
 
 または、以下のようにしてインストール:
@@ -49,11 +50,11 @@ gem 'sqlite3'
 
 YAML 形式のコンフィグファイルを用意し、
 
-    $ simple_mailing_list setup -c <config.yaml>
+    $ bundle exec simple_mailing_list setup -c <config.yaml>
 
-でデータベースやディレクトリを作成する。
+でデータベースやディレクトリを作成する。（※ bundler 不使用の場合は ```bundle exec``` 不要。）
 
-    $ simple_mailing_list <mode> -c <config.yaml>
+    $ bundle exec simple_mailing_list <mode> -c <config.yaml>
 
 で実行。
 
@@ -65,7 +66,7 @@ YAML 形式のコンフィグファイルを用意し、
 
 ### Daemon 化
 
-    $ daemons_simple_mailing_list start -- loop_main_jobs -c <config.yaml>
+    $ bundle exec daemons_simple_mailing_list start -- loop_main_jobs -c <config.yaml>
 
 で、「メールの受信・処理」「古いデータの削除」といった一連の処理をずっと繰り返します。
 

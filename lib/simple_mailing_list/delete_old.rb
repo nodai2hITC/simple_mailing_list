@@ -5,17 +5,21 @@ module SimpleMailingList
   module System
     private
 
-    def _delete_failed_users(failed_count = 10, time = 5 * 24 * 60 * 60)
+    def _disable_failed_users(failed_count = 10, time = 5 * 24 * 60 * 60, reset = true)
       @log.debug "Delete failed users."
       last_failed_at = Time.now - time
       users = User.where("last_failed_at > ? AND failed_count > ?", last_failed_at, failed_count)
       users.each do |user|
-        @log.info "user[#{user.mail_address}] was deleted."
-      end
-      users.destroy_all()
-      User.find_each do |user|
-        user.failed_count = 0
+        next if user.enabled == 0
+        @log.info "disable user[#{user.mail_address}]"
+        user.enabled = 0
         user.save
+      end
+      if reset
+        User.where(enabled: 1).each do |user|
+          user.failed_count = 0
+          user.save
+        end
       end
     end
 

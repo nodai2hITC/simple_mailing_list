@@ -198,7 +198,7 @@ module SimpleMailingList
 
       sendmail = create_forward_mail(mail, subject)
 
-      users = User.all.to_a.select do |user|
+      users = User.where(enabled: 1).to_a.select do |user|
         user_options = JSON.parse(user.options)
         !forward_options.keys.any?{ |key| forward_options[key] != user_options[key] }
       end
