@@ -87,3 +87,15 @@ forward:
     options: { grade: 2 }
   - address: forward3@mail.example.com
     options: { grade: 3 }
+
+forward_fail_subject: "Mail forwarding Error!"
+forward_fail_body: |
+  failed forwarding mail
+  "{{subject}}"
+forward_success_subject: "Mail forwarding successed."
+forward_success_body: |
+  successed forwarding mail
+  "{{subject}}"
+  {{count}} mails have been sent.
+
+reply_to_address: noreply_smltest@mail.nodai-2-h.ed.jp

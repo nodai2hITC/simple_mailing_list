@@ -29,4 +29,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency "liquid"
   spec.add_dependency "daemons"
   spec.add_dependency "thor"
+  spec.add_dependency "sqlite3"
 end

@@ -56,6 +56,10 @@ module SimpleMailingList
       @delete_success_body      = config["delete_success_body"] || ""
 
       @forward                  = config["forward"] || []
+      @forward_fail_subject     = config["forward_fail_subject"]
+      @forward_fail_body        = config["forward_fail_body"]
+      @forward_success_subject  = config["forward_success_subject"]
+      @forward_success_body     = config["forward_success_body"]
       @reply_to_address         = config["reply_to_address"]
 
       # database

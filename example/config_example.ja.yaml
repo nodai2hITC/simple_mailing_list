@@ -125,3 +125,22 @@ forward:
 # forward@mail.example.com に送ると登録者全員に、
 # forward(数値)@mail.example.com に送ると
 # 該当学年の登録者のみにメールを転送する。
+
+# メール転送に失敗／成功した際に送る報告メール。
+# 省略した場合は、報告メールを送らない。
+forward_fail_subject: メール配信の認証に失敗しました
+forward_fail_body: |
+  「{{subject}}」
+  のメール配信認証に失敗しました。
+  次のような原因が考えられます：
+  ・配信が許可されていないメールアドレスから配信しようとした。
+  ・認証コードが必要な設定にもかかわらず認証コードが入力されていない。
+  ・危険性のあるファイルを添付している。
+forward_success_subject: メール配信が完了しました
+forward_success_body: |
+  「{{subject}}」
+  のメール配信が終了しました。
+  全部で{{count}}通のメールが配信されました。
+
+# 転送メールの「reply_to」欄に設定するメールアドレス。
+reply_to_address: noreply_smltest@mail.nodai-2-h.ed.jp

@@ -62,7 +62,7 @@ module SimpleMailingList
         mode:         "register",
         options:      JSON.generate(regisiter_options)
       ).save!
-
+      
       mail = create_mail(
         to:      address,
         subject: @register_confirm_subject,
@@ -90,7 +90,7 @@ module SimpleMailingList
         mode:         "delete",
         options:      "{}"
       ).save!
-
+      
       mail = create_mail(
         to:      address,
         subject: @delete_confirm_subject,
@@ -110,11 +110,11 @@ module SimpleMailingList
       subject = mail.subject.to_s
       body = mail.body ? mail.body.decoded : ""
       body += mail.text_part.decoded.to_s if mail.text_part
-
+      
       Confirmation.where(mail_address: address).each do |confirmation|
         check_code = confirmation.check_code
         next unless subject.index(check_code) || body.index(check_code)
-
+        
         confirm_options = {}
         subject_text, body_text = case confirmation.mode
         when "register"
@@ -129,7 +129,7 @@ module SimpleMailingList
         else
           next
         end
-
+        
         create_mail(
           to:       address,
           subject:  subject_text,
@@ -143,7 +143,7 @@ module SimpleMailingList
         confirmation.destroy
         return true
       end
-
+      
       return false
     end
 
@@ -178,12 +178,14 @@ module SimpleMailingList
       if @permitted_users
         permitted_user = @permitted_users.find do |user|
           (!user["address"]    || user["address"] == address) &&
-          (!user["check_code"] || subject.index(["check_code"]))
+          (!user["check_code"] || subject.encode("utf-8").index(user["check_code"]))
         end
-        return true unless permitted_user
-        subject.sub!(permitted_user["check_code"], "") if permitted_user["check_code"]
+        return forward_mail_failed(mail, filename) unless permitted_user
+        if permitted_user["check_code"]
+          subject = subject.encode("utf-8").sub(permitted_user["check_code"], "")
+        end
       elsif @registered_user_only
-        return true unless User.find_by(mail_address: address)
+        return forward_mail_failed(mail, filename) unless User.find_by(mail_address: address)
       end
       danger_ext = /\.(exe|com|bat|cmd|vbs|vbe|js|jse|wsf|wsh|msc|jar|hta|scr|cpl|lnk)$/i
       if mail.has_attachments?
@@ -192,20 +194,21 @@ module SimpleMailingList
         end
         if attachment
           @log.warn("Contains danger attachment![#{attachment}@#{File.basename(filename)}]")
-          return true
+          return forward_mail_failed(mail, filename)
         end
       end
-
+      
       sendmail = create_forward_mail(mail, subject)
-
+      
       users = User.where(enabled: 1).to_a.select do |user|
         user_options = JSON.parse(user.options)
         !forward_options.keys.any?{ |key| forward_options[key] != user_options[key] }
       end
       users.map! { |user| user.mail_address }
+      users.unshift(address)
       users.uniq!
-      users.delete(address)
-
+      
+      @log.info "Sending start."
       domains = { "???" => [] }
       users.each do |user|
         domain = user.match(/@([^@]+)$/) ? $1 : "???"
@@ -213,8 +216,7 @@ module SimpleMailingList
         domains[domain].push(user)
       end
       max = domains.values.map(&:size).max
-      domains["???"][max] = address
-      0.upto(max) do |i|
+      max.times do |i|
         time = Time.now
         domains.each_value do |address_array|
           mail_address = address_array[i]
@@ -237,7 +239,36 @@ module SimpleMailingList
         next if Time.now - time > @sleep_time2 || i+1 == max
         sleep time - Time.now + @sleep_time2
       end
-      @log.info "Forward mails to #{users.size + 1} user#{users.size > 0 ? 's' : ''}."
+      
+      @log.info "Forward mails to #{users.size} user#{users.size > 0 ? 's' : ''}."
+      if @forward_success_subject && @forward_success_body
+        options = {
+          "subject" => subject.encode("utf-8"),
+          "count"   => users.size
+        }
+        reportmail = create_mail(
+          to:      address,
+          subject: @forward_success_subject,
+          body:    @forward_success_body,
+          options: options
+        ).deliver
+      end
+      move_mail_file(filename, "forward")
+      return true
+    end
+
+    def forward_mail_failed(mail, filename)
+      return true unless @forward_fail_subject && @forward_fail_body
+      
+      options = {
+        "subject" => mail.subject.to_s.encode("utf-8")
+      }
+      sendmail = create_mail(
+        to:      Array(mail.from).first.to_s,
+        subject: @forward_fail_subject,
+        body:    @forward_fail_body,
+        options: options
+      ).deliver
       move_mail_file(filename, "forward")
       return true
     end
